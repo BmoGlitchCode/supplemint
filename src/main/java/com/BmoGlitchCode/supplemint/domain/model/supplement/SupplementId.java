@@ -18,7 +18,7 @@ public class SupplementId {
 
     private final UUID value;
 
-    private SupplementId(UUID value) {
+    public SupplementId(UUID value) {
         this.value = Objects.requireNonNull(value, "SupplementId value cannot be null");
     }
 
