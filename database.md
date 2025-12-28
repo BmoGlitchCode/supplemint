@@ -59,11 +59,6 @@ id integer [primary key]
 stack_id integer [not null]
 supplement_id integer [not null]
 
-// Specific dosage for this supplement in this stack
-dosage_amount decimal [not null]
-dosage_unit units [not null]
-units_to_take decimal [default: 1] // how many capsules/scoops to take
-
 sort_order integer [default: 0] // for display ordering
 notes text [null]
 created_at timestamp [default: `now()`]
