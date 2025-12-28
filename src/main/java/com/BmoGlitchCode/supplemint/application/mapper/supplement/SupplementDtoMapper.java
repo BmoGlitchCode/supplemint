@@ -25,9 +25,12 @@ public class SupplementDtoMapper {
                 .description(supplement.getDescription())
                 .brand(supplement.getBrand())
                 .dosageType(supplement.getDosageType())
-                .defaultDosageAmount(supplement.getDefaultDosageAmount())
-                .defaultDosageUnit(supplement.getDefaultDosageUnit())
+                .dosagePerServing(supplement.getDosagePerServing())
+                .dosageUnit(supplement.getDosageUnit())
+                .servingSize(supplement.getServingSize())
                 .notes(supplement.getNotes())
+                .totalUnits(supplement.getTotalUnits())
+                .remainingUnits(supplement.getRemainingUnits())
                 .active(supplement.isActive())
                 .createdAt(supplement.getCreatedAt())
                 .updatedAt(supplement.getUpdatedAt())
@@ -44,8 +47,10 @@ public class SupplementDtoMapper {
                 request.description(),
                 request.brand(),
                 request.dosageType(),
-                request.defaultDosageAmount(),
-                request.defaultDosageUnit(),
+                request.dosagePerServing(),
+                request.dosageUnit(),
+                request.servingSize(),
+                request.totalUnits(),
                 request.notes());
     }
 
@@ -60,8 +65,10 @@ public class SupplementDtoMapper {
                 request.description(),
                 request.brand(),
                 request.dosageType(),
-                request.defaultDosageAmount(),
-                request.defaultDosageUnit(),
-                request.notes());
+                request.dosagePerServing(),
+                request.dosageUnit(),
+                request.servingSize(),
+                request.notes(),
+                request.remainingUnits());
     }
 }

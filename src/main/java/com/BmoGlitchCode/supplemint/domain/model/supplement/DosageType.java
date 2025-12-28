@@ -10,9 +10,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum DosageType {
+
     // Solid forms
-    TABLET("Tablet"),
-    CAPSULE("Capsule"),
     SOFTGEL("Softgel"),
     PILL("Pill"),
     GUMMY("Gummy"),
@@ -20,12 +19,9 @@ public enum DosageType {
     CHEWABLE("Chewable"),
 
     // Loose/Volume forms
-    SCOOP("Scoop"), // Often used for powders
-    POWDER("Powder"),
-    LIQUID("Liquid"),
+    SCOOP("Scoop"),
     DROP("Drop"),
     SPRAY("Spray"),
-    PACKET("Packet"),
 
     // Other
     SERVING("Serving");

@@ -12,14 +12,16 @@ public class CreateSupplementUseCaseImpl implements CreateSupplementUseCase {
 
     @Override
     public Supplement create(CreateSupplementCommand command) {
-        Supplement supplement = Supplement.createNew(
+        Supplement supplement = Supplement.of(
                 command.userId(),
                 command.name(),
                 command.description(),
                 command.brand(),
                 command.dosageType(),
-                command.defaultDosageAmount(),
-                command.defaultDosageUnit(),
+                command.dosagePerServing(),
+                command.dosageUnit(),
+                command.servingSize(),
+                command.totalUnits(),
                 command.notes());
 
         return supplementRepository.save(supplement);

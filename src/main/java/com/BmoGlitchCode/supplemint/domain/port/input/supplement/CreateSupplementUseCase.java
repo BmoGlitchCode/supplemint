@@ -9,16 +9,18 @@ import java.math.BigDecimal;
 
 public interface CreateSupplementUseCase {
 
-    Supplement create(CreateSupplementCommand command);
+        Supplement create(CreateSupplementCommand command);
 
-    record CreateSupplementCommand(
-            UserId userId,
-            String name,
-            String description,
-            String brand,
-            DosageType dosageType,
-            BigDecimal defaultDosageAmount,
-            DosageUnit defaultDosageUnit, // Can be null if type implies unit
-            String notes) {
-    }
+        record CreateSupplementCommand(
+                        UserId userId,
+                        String name,
+                        String description,
+                        String brand,
+                        DosageType dosageType,
+                        BigDecimal dosagePerServing,
+                        DosageUnit dosageUnit, // Can be null if type implies unit
+                        BigDecimal servingSize,
+                        BigDecimal totalUnits,
+                        String notes) {
+        }
 }

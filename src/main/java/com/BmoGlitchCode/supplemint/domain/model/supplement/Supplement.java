@@ -37,9 +37,17 @@ public class Supplement {
     private String brand;
 
     // Configuration for the dosage
-    private DosageType dosageType; // e.g. Capsule, Tablet, Scoop
-    private BigDecimal defaultDosageAmount; // e.g. 500, 1
-    private DosageUnit defaultDosageUnit; // e.g. mg, g. Nullable if the unit is implied by the type (e.g. 1 Tablet)
+    private DosageType dosageType; // e.g. Pill, Scoop
+    private BigDecimal dosagePerServing; // e.g. 500, 1
+    private DosageUnit dosageUnit; // e.g. mg, g.
+    @Builder.Default
+    private BigDecimal servingSize = BigDecimal.ONE; // e.g. 1 (pills), 2 (scoops)
+
+    // Inventory Tracking
+    @lombok.NonNull
+    private final BigDecimal totalUnits; // total pills/scoops when bought
+    @lombok.NonNull
+    private BigDecimal remainingUnits; // currently remaining
 
     private String notes;
 
@@ -54,21 +62,27 @@ public class Supplement {
     /**
      * Factory method for creating a new supplement.
      */
-    public static Supplement createNew(
+    public static Supplement of(
             UserId userId,
             String name,
             String description,
             String brand,
             DosageType dosageType,
-            BigDecimal defaultDosageAmount,
-            DosageUnit defaultDosageUnit,
+            BigDecimal dosagePerServing,
+            DosageUnit dosageUnit,
+            BigDecimal servingSize,
+            BigDecimal totalUnits,
             String notes) {
 
         Objects.requireNonNull(userId, "UserId cannot be null");
         Objects.requireNonNull(name, "Supplement name cannot be null");
+        Objects.requireNonNull(totalUnits, "Total units cannot be null");
 
         if (name.trim().isEmpty()) {
             throw new IllegalArgumentException("Supplement name cannot be empty");
+        }
+        if (totalUnits.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Total units must be positive");
         }
 
         Instant now = Instant.now();
@@ -79,8 +93,11 @@ public class Supplement {
                 .description(description)
                 .brand(brand)
                 .dosageType(dosageType)
-                .defaultDosageAmount(defaultDosageAmount)
-                .defaultDosageUnit(defaultDosageUnit)
+                .dosagePerServing(dosagePerServing)
+                .dosageUnit(dosageUnit)
+                .servingSize(servingSize != null ? servingSize : BigDecimal.ONE)
+                .totalUnits(totalUnits)
+                .remainingUnits(totalUnits) // Default remaining to total
                 .notes(notes)
                 .active(true)
                 .createdAt(now)
@@ -109,14 +126,18 @@ public class Supplement {
     /**
      * Updates the dosage configuration.
      */
-    public void updateDosageConfig(DosageType type, BigDecimal defaultAmount, DosageUnit defaultUnit) {
-        if (defaultAmount != null && defaultAmount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Default dosage amount must be positive");
+    public void updateDosageConfig(DosageType type, BigDecimal amount, DosageUnit unit, BigDecimal servingSize) {
+        if (amount != null && amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Dosage amount must be positive");
+        }
+        if (servingSize != null && servingSize.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Serving size must be positive");
         }
 
         this.dosageType = type;
-        this.defaultDosageAmount = defaultAmount;
-        this.defaultDosageUnit = defaultUnit;
+        this.dosagePerServing = amount;
+        this.dosageUnit = unit;
+        this.servingSize = servingSize != null ? servingSize : BigDecimal.ONE;
         this.updatedAt = Instant.now();
     }
 
@@ -125,6 +146,20 @@ public class Supplement {
      */
     public void updateNotes(String notes) {
         this.notes = notes;
+        this.updatedAt = Instant.now();
+    }
+
+    /**
+     * Updates the remaining units.
+     */
+    public void updateRemainingUnits(BigDecimal remainingUnits) {
+        if (remainingUnits != null && remainingUnits.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Remaining units cannot be negative");
+        }
+        if (remainingUnits != null && remainingUnits.compareTo(this.totalUnits) > 0) {
+            throw new IllegalArgumentException("Remaining units cannot be greater than total units");
+        }
+        this.remainingUnits = remainingUnits;
         this.updatedAt = Instant.now();
     }
 

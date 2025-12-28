@@ -10,17 +10,19 @@ import java.math.BigDecimal;
 
 public interface UpdateSupplementUseCase {
 
-    Supplement update(UpdateSupplementCommand command);
+        Supplement update(UpdateSupplementCommand command);
 
-    record UpdateSupplementCommand(
-            UserId userId, // Required to verify ownership
-            SupplementId supplementId,
-            String name,
-            String description,
-            String brand,
-            DosageType dosageType,
-            BigDecimal defaultDosageAmount,
-            DosageUnit defaultDosageUnit,
-            String notes) {
-    }
+        record UpdateSupplementCommand(
+                        UserId userId, // Required to verify ownership
+                        SupplementId supplementId,
+                        String name,
+                        String description,
+                        String brand,
+                        DosageType dosageType,
+                        BigDecimal dosagePerServing,
+                        DosageUnit dosageUnit,
+                        BigDecimal servingSize,
+                        String notes,
+                        BigDecimal remainingUnits) {
+        }
 }

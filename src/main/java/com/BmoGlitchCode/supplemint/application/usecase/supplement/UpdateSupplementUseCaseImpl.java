@@ -22,8 +22,13 @@ public class UpdateSupplementUseCaseImpl implements UpdateSupplementUseCase {
         }
 
         supplement.updateBasicInfo(command.name(), command.description(), command.brand());
-        supplement.updateDosageConfig(command.dosageType(), command.defaultDosageAmount(), command.defaultDosageUnit());
+        supplement.updateDosageConfig(command.dosageType(), command.dosagePerServing(), command.dosageUnit(),
+                command.servingSize());
         supplement.updateNotes(command.notes());
+
+        if (command.remainingUnits() != null) {
+            supplement.updateRemainingUnits(command.remainingUnits());
+        }
 
         return supplementRepository.save(supplement);
     }

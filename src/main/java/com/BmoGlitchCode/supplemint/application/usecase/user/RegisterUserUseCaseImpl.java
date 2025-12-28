@@ -30,7 +30,7 @@ public class RegisterUserUseCaseImpl implements RegisterUserUseCase {
         String passwordHash = passwordEncoder.encode(command.password());
 
         // Create domain user
-        User user = User.createNew(
+        User user = User.of(
                 email,
                 passwordHash,
                 command.firstName(),

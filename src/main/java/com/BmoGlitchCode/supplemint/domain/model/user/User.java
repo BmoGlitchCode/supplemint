@@ -37,7 +37,7 @@ public class User {
     private Instant updatedAt;
 
     // Factory method for creating a new user during registration
-    public static User createNew(Email email, String passwordHash, String firstName, String lastName) {
+    public static User of(Email email, String passwordHash, String firstName, String lastName) {
         Instant now = Instant.now();
         return User.builder()
                 .id(UserId.generate())

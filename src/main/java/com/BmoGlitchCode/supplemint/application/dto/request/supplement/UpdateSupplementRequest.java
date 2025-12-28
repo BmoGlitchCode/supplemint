@@ -1,28 +1,31 @@
 package com.BmoGlitchCode.supplemint.application.dto.request.supplement;
 
+import java.math.BigDecimal;
+import java.util.UUID;
 import com.BmoGlitchCode.supplemint.domain.model.supplement.DosageType;
 import com.BmoGlitchCode.supplemint.domain.model.supplement.DosageUnit;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
-import java.math.BigDecimal;
-import java.util.UUID;
-
 public record UpdateSupplementRequest(
-        @NotNull(message = "User ID cannot be null") UUID userId,
+                @NotNull(message = "User ID cannot be null") UUID userId,
 
-        @NotBlank(message = "Name cannot be blank") String name,
+                @NotBlank(message = "Name cannot be blank") String name,
 
-        String description,
+                String description,
 
-        String brand,
+                String brand,
 
-        DosageType dosageType,
+                DosageType dosageType,
 
-        @Positive(message = "Dosage amount must be positive") BigDecimal defaultDosageAmount,
+                @Positive(message = "Dosage amount must be positive") BigDecimal dosagePerServing,
 
-        DosageUnit defaultDosageUnit,
+                DosageUnit dosageUnit,
 
-        String notes) {
+                @Positive(message = "Serving size must be positive") BigDecimal servingSize,
+
+                String notes,
+
+                @Positive(message = "Remaining units must be positive") BigDecimal remainingUnits) {
 }
