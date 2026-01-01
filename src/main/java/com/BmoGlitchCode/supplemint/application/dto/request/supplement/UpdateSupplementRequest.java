@@ -7,15 +7,18 @@ import com.BmoGlitchCode.supplemint.domain.model.supplement.DosageUnit;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
 
 public record UpdateSupplementRequest(
                 @NotNull(message = "User ID cannot be null") UUID userId,
 
-                @NotBlank(message = "Name cannot be blank") String name,
+                @NotBlank(message = "Name cannot be blank")
+                @Size(max = 100, message = "Name must be at most 100 characters") String name,
 
-                String description,
+                @Size(max = 500, message = "Description must be at most 500 characters") String description,
 
-                String brand,
+                @Size(max = 100, message = "Brand must be at most 100 characters") String brand,
 
                 DosageType dosageType,
 
@@ -25,7 +28,7 @@ public record UpdateSupplementRequest(
 
                 @Positive(message = "Serving size must be positive") BigDecimal servingSize,
 
-                String notes,
+                @Size(max = 1000, message = "Notes must be at most 1000 characters") String notes,
 
-                @Positive(message = "Remaining units must be positive") BigDecimal remainingUnits) {
+                @PositiveOrZero(message = "Remaining units cannot be negative") BigDecimal remainingUnits) {
 }

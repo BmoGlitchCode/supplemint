@@ -6,21 +6,14 @@ import com.BmoGlitchCode.supplemint.application.dto.request.stack.UpdateStackReq
 import com.BmoGlitchCode.supplemint.application.dto.response.stack.StackResponse;
 import com.BmoGlitchCode.supplemint.application.mapper.stack.StackDtoMapper;
 import com.BmoGlitchCode.supplemint.domain.model.stack.Stack;
-import com.BmoGlitchCode.supplemint.domain.model.stack.StackId;
 import com.BmoGlitchCode.supplemint.domain.model.stack.StackItem;
 import com.BmoGlitchCode.supplemint.domain.model.supplement.Supplement;
 import com.BmoGlitchCode.supplemint.domain.model.supplement.SupplementId;
-import com.BmoGlitchCode.supplemint.domain.model.user.UserId;
 import com.BmoGlitchCode.supplemint.domain.port.input.stack.*;
 import com.BmoGlitchCode.supplemint.domain.port.input.stack.AddStackItemUseCase.AddStackItemCommand;
 import com.BmoGlitchCode.supplemint.domain.port.input.stack.CreateStackUseCase.CreateStackCommand;
-import com.BmoGlitchCode.supplemint.domain.port.input.stack.DeleteStackUseCase.DeleteStackCommand;
-import com.BmoGlitchCode.supplemint.domain.port.input.stack.GetStackUseCase.GetStackQuery;
-import com.BmoGlitchCode.supplemint.domain.port.input.stack.ListUserStacksUseCase.ListUserStacksQuery;
-import com.BmoGlitchCode.supplemint.domain.port.input.stack.RemoveStackItemUseCase.RemoveStackItemCommand;
 import com.BmoGlitchCode.supplemint.domain.port.input.stack.UpdateStackUseCase.UpdateStackCommand;
 import com.BmoGlitchCode.supplemint.domain.port.input.supplement.GetSupplementUseCase;
-import com.BmoGlitchCode.supplemint.domain.port.input.supplement.GetSupplementUseCase.GetSupplementQuery;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -49,8 +42,7 @@ public class StackController {
 
     @PostMapping
     public ResponseEntity<StackResponse> createStack(@Valid @RequestBody CreateStackRequest request) {
-        UserId userId = UserId.of(request.userId());
-        CreateStackCommand command = stackDtoMapper.toCreateCommand(request, userId.getValue());
+        CreateStackCommand command = stackDtoMapper.toCreateCommand(request, request.userId());
         Stack createdStack = createStackUseCase.createStack(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(stackDtoMapper.toResponse(createdStack));
     }
@@ -59,8 +51,7 @@ public class StackController {
     public ResponseEntity<StackResponse> updateStack(
             @PathVariable UUID stackId,
             @Valid @RequestBody UpdateStackRequest request) {
-        UserId userId = UserId.of(request.userId());
-        UpdateStackCommand command = stackDtoMapper.toUpdateCommand(request, userId.getValue(), stackId);
+        UpdateStackCommand command = stackDtoMapper.toUpdateCommand(request, request.userId(), stackId);
         Stack updatedStack = updateStackUseCase.updateStack(command);
         return ResponseEntity.ok(stackDtoMapper.toResponse(updatedStack));
     }
@@ -69,9 +60,7 @@ public class StackController {
     public ResponseEntity<Void> deleteStack(
             @PathVariable UUID stackId,
             @RequestParam UUID userId) {
-        UserId uid = UserId.of(userId);
-        DeleteStackCommand command = new DeleteStackCommand(new StackId(stackId), uid);
-        deleteStackUseCase.deleteStack(command);
+        deleteStackUseCase.deleteStack(stackDtoMapper.toDeleteStackCommand(userId, stackId));
         return ResponseEntity.noContent().build();
     }
 
@@ -79,12 +68,10 @@ public class StackController {
     public ResponseEntity<StackResponse> getStack(
             @PathVariable UUID stackId,
             @RequestParam UUID userId) {
-        UserId uid = UserId.of(userId);
-        GetStackQuery query = new GetStackQuery(new StackId(stackId), uid);
-        Stack stack = getStackUseCase.getStack(query);
+        Stack stack = getStackUseCase.getStack(stackDtoMapper.toGetStackQuery(userId, stackId));
 
         Map<SupplementId, Supplement> supplementMap = stack.getItems().stream()
-                .map(item -> getSupplementUseCase.get(new GetSupplementQuery(uid, item.getSupplementId())))
+                .map(item -> getSupplementUseCase.get(stackDtoMapper.toGetSupplementQuery(userId, item.getSupplementId())))
                 .collect(Collectors.toMap(Supplement::getId, s -> s));
 
         return ResponseEntity.ok(stackDtoMapper.toResponse(stack, supplementMap));
@@ -94,16 +81,13 @@ public class StackController {
     public ResponseEntity<List<StackResponse>> listUserStacks(
             @RequestParam UUID userId,
             @RequestParam(defaultValue = "false") boolean activeOnly) {
-        UserId uid = UserId.of(userId);
-        ListUserStacksQuery query = new ListUserStacksQuery(uid, activeOnly);
-        List<Stack> stacks = listUserStacksUseCase.list(query);
+        List<Stack> stacks = listUserStacksUseCase.list(stackDtoMapper.toListUserStacksQuery(userId, activeOnly));
 
-        // Fetch all unique supplements across all stacks
         Map<SupplementId, Supplement> supplementMap = stacks.stream()
                 .flatMap(s -> s.getItems().stream())
                 .map(StackItem::getSupplementId)
                 .distinct()
-                .map(sid -> getSupplementUseCase.get(new GetSupplementQuery(uid, sid)))
+                .map(sid -> getSupplementUseCase.get(stackDtoMapper.toGetSupplementQuery(userId, sid)))
                 .collect(Collectors.toMap(Supplement::getId, s -> s));
 
         List<StackResponse> response = stacks.stream()
@@ -116,8 +100,7 @@ public class StackController {
     public ResponseEntity<Void> addStackItem(
             @PathVariable UUID stackId,
             @Valid @RequestBody AddStackItemRequest request) {
-        UserId userId = UserId.of(request.userId());
-        AddStackItemCommand command = stackDtoMapper.toAddStackItemCommand(request, userId.getValue(), stackId);
+        AddStackItemCommand command = stackDtoMapper.toAddStackItemCommand(request, request.userId(), stackId);
         addStackItemUseCase.addStackItem(command);
         return ResponseEntity.ok().build();
     }
@@ -127,10 +110,7 @@ public class StackController {
             @PathVariable UUID stackId,
             @PathVariable UUID supplementId,
             @RequestParam UUID userId) {
-        UserId uid = UserId.of(userId);
-        RemoveStackItemCommand command = new RemoveStackItemCommand(new StackId(stackId), uid,
-                com.BmoGlitchCode.supplemint.domain.model.supplement.SupplementId.of(supplementId));
-        removeStackItemUseCase.removeStackItem(command);
+        removeStackItemUseCase.removeStackItem(stackDtoMapper.toRemoveStackItemCommand(userId, stackId, supplementId));
         return ResponseEntity.noContent().build();
     }
 }

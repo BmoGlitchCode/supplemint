@@ -12,7 +12,12 @@ import com.BmoGlitchCode.supplemint.domain.model.user.UserId;
 import com.BmoGlitchCode.supplemint.domain.model.stack.StackId;
 import com.BmoGlitchCode.supplemint.domain.port.input.stack.AddStackItemUseCase.AddStackItemCommand;
 import com.BmoGlitchCode.supplemint.domain.port.input.stack.CreateStackUseCase.CreateStackCommand;
+import com.BmoGlitchCode.supplemint.domain.port.input.stack.DeleteStackUseCase.DeleteStackCommand;
+import com.BmoGlitchCode.supplemint.domain.port.input.stack.GetStackUseCase.GetStackQuery;
+import com.BmoGlitchCode.supplemint.domain.port.input.stack.ListUserStacksUseCase.ListUserStacksQuery;
+import com.BmoGlitchCode.supplemint.domain.port.input.stack.RemoveStackItemUseCase.RemoveStackItemCommand;
 import com.BmoGlitchCode.supplemint.domain.port.input.stack.UpdateStackUseCase.UpdateStackCommand;
+import com.BmoGlitchCode.supplemint.domain.port.input.supplement.GetSupplementUseCase.GetSupplementQuery;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -97,5 +102,28 @@ public class StackDtoMapper {
                 supplement != null ? supplement.getDosageUnit() : null,
                 item.getSortOrder(),
                 item.getNotes());
+    }
+
+    public GetStackQuery toGetStackQuery(UUID userId, UUID stackId) {
+        return new GetStackQuery(StackId.of(stackId), UserId.of(userId));
+    }
+
+    public ListUserStacksQuery toListUserStacksQuery(UUID userId, boolean activeOnly) {
+        return new ListUserStacksQuery(UserId.of(userId), activeOnly);
+    }
+
+    public DeleteStackCommand toDeleteStackCommand(UUID userId, UUID stackId) {
+        return new DeleteStackCommand(StackId.of(stackId), UserId.of(userId));
+    }
+
+    public RemoveStackItemCommand toRemoveStackItemCommand(UUID userId, UUID stackId, UUID supplementId) {
+        return new RemoveStackItemCommand(
+                StackId.of(stackId),
+                UserId.of(userId),
+                SupplementId.of(supplementId));
+    }
+
+    public GetSupplementQuery toGetSupplementQuery(UUID userId, SupplementId supplementId) {
+        return new GetSupplementQuery(UserId.of(userId), supplementId);
     }
 }

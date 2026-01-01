@@ -5,8 +5,6 @@ import com.BmoGlitchCode.supplemint.application.dto.request.supplement.UpdateSup
 import com.BmoGlitchCode.supplemint.application.dto.response.supplement.SupplementResponse;
 import com.BmoGlitchCode.supplemint.application.mapper.supplement.SupplementDtoMapper;
 import com.BmoGlitchCode.supplemint.domain.model.supplement.Supplement;
-import com.BmoGlitchCode.supplemint.domain.model.supplement.SupplementId;
-import com.BmoGlitchCode.supplemint.domain.model.user.UserId;
 import com.BmoGlitchCode.supplemint.domain.port.input.supplement.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -51,13 +49,7 @@ public class SupplementController {
     public ResponseEntity<SupplementResponse> get(
             @PathVariable UUID id,
             @RequestParam UUID userId) {
-        UserId uid = UserId.of(userId);
-        SupplementId supplementId = SupplementId.of(id);
-
-        GetSupplementUseCase.GetSupplementQuery query = new GetSupplementUseCase.GetSupplementQuery(
-                uid,
-                supplementId);
-
+        GetSupplementUseCase.GetSupplementQuery query = mapper.toGetQuery(userId, id);
         Supplement supplement = getSupplementUseCase.get(query);
         return ResponseEntity.ok(mapper.toResponse(supplement));
     }
@@ -66,12 +58,7 @@ public class SupplementController {
     public ResponseEntity<List<SupplementResponse>> list(
             @RequestParam UUID userId,
             @RequestParam(defaultValue = "true") boolean activeOnly) {
-        UserId uid = UserId.of(userId);
-
-        ListUserSupplementsUseCase.ListUserSupplementsQuery query = new ListUserSupplementsUseCase.ListUserSupplementsQuery(
-                uid,
-                activeOnly);
-
+        ListUserSupplementsUseCase.ListUserSupplementsQuery query = mapper.toListQuery(userId, activeOnly);
         List<Supplement> supplements = listUserSupplementsUseCase.list(query);
         List<SupplementResponse> responseList = supplements.stream()
                 .map(mapper::toResponse)
@@ -84,13 +71,7 @@ public class SupplementController {
     public ResponseEntity<Void> delete(
             @PathVariable UUID id,
             @RequestParam UUID userId) {
-        UserId uid = UserId.of(userId);
-        SupplementId supplementId = SupplementId.of(id);
-
-        DeleteSupplementUseCase.DeleteSupplementCommand command = new DeleteSupplementUseCase.DeleteSupplementCommand(
-                uid,
-                supplementId);
-
+        DeleteSupplementUseCase.DeleteSupplementCommand command = mapper.toDeleteCommand(userId, id);
         deleteSupplementUseCase.delete(command);
         return ResponseEntity.noContent().build();
     }

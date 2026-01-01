@@ -7,6 +7,9 @@ import com.BmoGlitchCode.supplemint.domain.model.supplement.Supplement;
 import com.BmoGlitchCode.supplemint.domain.model.supplement.SupplementId;
 import com.BmoGlitchCode.supplemint.domain.model.user.UserId;
 import com.BmoGlitchCode.supplemint.domain.port.input.supplement.CreateSupplementUseCase;
+import com.BmoGlitchCode.supplemint.domain.port.input.supplement.DeleteSupplementUseCase;
+import com.BmoGlitchCode.supplemint.domain.port.input.supplement.GetSupplementUseCase;
+import com.BmoGlitchCode.supplemint.domain.port.input.supplement.ListUserSupplementsUseCase;
 import com.BmoGlitchCode.supplemint.domain.port.input.supplement.UpdateSupplementUseCase;
 import org.springframework.stereotype.Component;
 
@@ -70,5 +73,23 @@ public class SupplementDtoMapper {
                 request.servingSize(),
                 request.notes(),
                 request.remainingUnits());
+    }
+
+    public GetSupplementUseCase.GetSupplementQuery toGetQuery(UUID userId, UUID supplementId) {
+        return new GetSupplementUseCase.GetSupplementQuery(
+                UserId.of(userId),
+                SupplementId.of(supplementId));
+    }
+
+    public ListUserSupplementsUseCase.ListUserSupplementsQuery toListQuery(UUID userId, boolean activeOnly) {
+        return new ListUserSupplementsUseCase.ListUserSupplementsQuery(
+                UserId.of(userId),
+                activeOnly);
+    }
+
+    public DeleteSupplementUseCase.DeleteSupplementCommand toDeleteCommand(UUID userId, UUID supplementId) {
+        return new DeleteSupplementUseCase.DeleteSupplementCommand(
+                UserId.of(userId),
+                SupplementId.of(supplementId));
     }
 }

@@ -1,6 +1,7 @@
 package com.BmoGlitchCode.supplemint.application.usecase.stack;
 
 import com.BmoGlitchCode.supplemint.domain.model.stack.Stack;
+import com.BmoGlitchCode.supplemint.domain.model.stack.StackId;
 import com.BmoGlitchCode.supplemint.domain.port.input.stack.DeleteStackUseCase;
 import com.BmoGlitchCode.supplemint.domain.port.output.stack.StackRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,13 +13,14 @@ public class DeleteStackUseCaseImpl implements DeleteStackUseCase {
 
     @Override
     public void deleteStack(DeleteStackCommand command) {
-        Stack stack = stackRepository.findById(command.stackId())
-                .orElseThrow(() -> new IllegalArgumentException("Stack not found with id: " + command.stackId()));
+        StackId id = command.stackId();
+        Stack stack = stackRepository.findById(id)
+                .orElseThrow(() -> new StackNotFoundException(id));
 
         if (!stack.getUserId().equals(command.userId())) {
-            throw new IllegalArgumentException("Stack does not belong to user");
+            throw new StackAccessDeniedException(id, command.userId());
         }
 
-        stackRepository.delete(command.stackId());
+        stackRepository.delete(id);
     }
 }

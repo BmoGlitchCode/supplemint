@@ -1,5 +1,9 @@
 package com.BmoGlitchCode.supplemint.adapter.input.rest;
 
+import com.BmoGlitchCode.supplemint.application.usecase.stack.StackAccessDeniedException;
+import com.BmoGlitchCode.supplemint.application.usecase.stack.StackNotFoundException;
+import com.BmoGlitchCode.supplemint.application.usecase.supplement.SupplementAccessDeniedException;
+import com.BmoGlitchCode.supplemint.application.usecase.supplement.SupplementNotFoundException;
 import com.BmoGlitchCode.supplemint.application.usecase.user.InvalidCredentialsException;
 import com.BmoGlitchCode.supplemint.application.usecase.user.UserAlreadyExistsException;
 import com.BmoGlitchCode.supplemint.application.usecase.user.UserNotActiveException;
@@ -39,6 +43,34 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(new ErrorResponse("USER_NOT_ACTIVE", ex.getMessage()));
+    }
+
+    @ExceptionHandler(SupplementNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleSupplementNotFound(SupplementNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("SUPPLEMENT_NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(SupplementAccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleSupplementAccessDenied(SupplementAccessDeniedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse("SUPPLEMENT_ACCESS_DENIED", ex.getMessage()));
+    }
+
+    @ExceptionHandler(StackNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleStackNotFound(StackNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("STACK_NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(StackAccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleStackAccessDenied(StackAccessDeniedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse("STACK_ACCESS_DENIED", ex.getMessage()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

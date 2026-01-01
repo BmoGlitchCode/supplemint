@@ -15,10 +15,10 @@ public class DeleteSupplementUseCaseImpl implements DeleteSupplementUseCase {
     public void delete(DeleteSupplementCommand command) {
         SupplementId id = command.supplementId();
         Supplement supplement = supplementRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Supplement not found with ID: " + id.getValue()));
+                .orElseThrow(() -> new SupplementNotFoundException(id));
 
         if (!supplement.belongsToUser(command.userId())) {
-            throw new IllegalArgumentException("Supplement does not belong to user");
+            throw new SupplementAccessDeniedException(id, command.userId());
         }
 
         supplement.deactivate();
