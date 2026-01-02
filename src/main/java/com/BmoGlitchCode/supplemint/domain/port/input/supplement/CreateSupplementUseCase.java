@@ -21,6 +21,7 @@ public interface CreateSupplementUseCase {
                         DosageUnit dosageUnit, // Can be null if type implies unit
                         BigDecimal servingSize,
                         BigDecimal totalUnits,
+                        BigDecimal remainingUnits, // Optional, defaults to totalUnits if null
                         String notes) {
         }
 }

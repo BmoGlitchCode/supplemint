@@ -2,6 +2,7 @@ package com.BmoGlitchCode.supplemint.application.mapper.stack;
 
 import com.BmoGlitchCode.supplemint.application.dto.request.stack.AddStackItemRequest;
 import com.BmoGlitchCode.supplemint.application.dto.request.stack.CreateStackRequest;
+import com.BmoGlitchCode.supplemint.application.dto.request.stack.StackItemRequest;
 import com.BmoGlitchCode.supplemint.application.dto.request.stack.UpdateStackRequest;
 import com.BmoGlitchCode.supplemint.application.dto.response.stack.StackItemResponse;
 import com.BmoGlitchCode.supplemint.application.dto.response.stack.StackResponse;
@@ -20,6 +21,8 @@ import com.BmoGlitchCode.supplemint.domain.port.input.stack.UpdateStackUseCase.U
 import com.BmoGlitchCode.supplemint.domain.port.input.supplement.GetSupplementUseCase.GetSupplementQuery;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,7 +36,7 @@ public class StackDtoMapper {
                 request.description(),
                 request.defaultTime(),
                 request.color(),
-                request.items());
+                toStackItems(request.items()));
     }
 
     public UpdateStackCommand toUpdateCommand(UpdateStackRequest request, UUID userId, UUID stackId) {
@@ -44,21 +47,29 @@ public class StackDtoMapper {
                 request.description(),
                 request.defaultTime(),
                 request.color(),
-                request.items());
+                toStackItems(request.items()));
     }
 
     public AddStackItemCommand toAddStackItemCommand(AddStackItemRequest request, UUID userId, UUID stackId) {
-        // Assuming validation checks if userId matches request wrapper if needed, or we
-        // enforce consistency
-        // Here we take userId from authentication usually, ensuring security
         return new AddStackItemCommand(
                 StackId.of(stackId),
                 UserId.of(userId),
-                StackItem.builder()
-                        .supplementId(SupplementId.of(request.supplementId()))
-                        .sortOrder(request.sortOrder())
-                        .notes(request.notes())
-                        .build());
+                StackItem.of(
+                        SupplementId.of(request.supplementId()),
+                        request.sortOrder() != null ? request.sortOrder() : 0));
+    }
+
+    private List<StackItem> toStackItems(List<StackItemRequest> items) {
+        if (items == null || items.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<StackItem> stackItems = new ArrayList<>();
+        for (int i = 0; i < items.size(); i++) {
+            StackItemRequest item = items.get(i);
+            int sortOrder = item.sortOrder() != null ? item.sortOrder() : i;
+            stackItems.add(StackItem.of(SupplementId.of(item.supplementId()), sortOrder));
+        }
+        return stackItems;
     }
 
     public StackResponse toResponse(Stack stack) {
@@ -100,8 +111,7 @@ public class StackDtoMapper {
                 supplement != null ? supplement.getDescription() : null,
                 supplement != null ? supplement.getDosagePerServing() : null,
                 supplement != null ? supplement.getDosageUnit() : null,
-                item.getSortOrder(),
-                item.getNotes());
+                item.getSortOrder());
     }
 
     public GetStackQuery toGetStackQuery(UUID userId, UUID stackId) {

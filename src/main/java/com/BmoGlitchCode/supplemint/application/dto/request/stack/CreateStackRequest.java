@@ -1,7 +1,7 @@
 package com.BmoGlitchCode.supplemint.application.dto.request.stack;
 
-import com.BmoGlitchCode.supplemint.domain.model.stack.StackItem;
 import com.BmoGlitchCode.supplemint.domain.model.stack.TimeOfDay;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -23,6 +23,6 @@ public record CreateStackRequest(
         @Size(max = 7, message = "Color must be at most 7 characters")
         @Pattern(regexp = "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})?$", message = "Color must be a valid hex color code") String color,
 
-        List<StackItem> items
+        @Valid List<StackItemRequest> items
 ) {
 }

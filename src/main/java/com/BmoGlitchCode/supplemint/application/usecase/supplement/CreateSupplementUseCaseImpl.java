@@ -22,6 +22,7 @@ public class CreateSupplementUseCaseImpl implements CreateSupplementUseCase {
                 command.dosageUnit(),
                 command.servingSize(),
                 command.totalUnits(),
+                command.remainingUnits(),
                 command.notes());
 
         return supplementRepository.save(supplement);

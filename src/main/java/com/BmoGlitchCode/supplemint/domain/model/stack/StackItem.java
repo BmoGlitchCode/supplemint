@@ -31,16 +31,10 @@ public class StackItem {
     @Builder.Default
     private int sortOrder = 0;
 
-    /**
-     * Optional notes for this item in the stack.
-     */
-    private String notes;
-
-    public static StackItem of(SupplementId supplementId, int sortOrder, String notes) {
+    public static StackItem of(SupplementId supplementId, int sortOrder) {
         return StackItem.builder()
                 .supplementId(supplementId)
                 .sortOrder(sortOrder)
-                .notes(notes)
                 .build();
     }
 }

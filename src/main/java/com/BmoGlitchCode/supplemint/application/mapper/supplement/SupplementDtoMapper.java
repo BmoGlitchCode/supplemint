@@ -54,6 +54,7 @@ public class SupplementDtoMapper {
                 request.dosageUnit(),
                 request.servingSize(),
                 request.totalUnits(),
+                request.remainingUnits(),
                 request.notes());
     }
 

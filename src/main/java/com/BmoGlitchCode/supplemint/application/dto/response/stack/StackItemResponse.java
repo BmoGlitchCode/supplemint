@@ -10,6 +10,5 @@ public record StackItemResponse(
         String supplementDescription,
         BigDecimal dosagePerServing,
         DosageUnit dosageUnit,
-        int sortOrder,
-        String notes) {
+        int sortOrder) {
 }

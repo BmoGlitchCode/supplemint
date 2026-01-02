@@ -94,7 +94,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"name\": \"Vitamin C\",\n  \"description\": \"Immune system support\",\n  \"brand\": \"HealthyLife\",\n  \"dosageType\": \"PILL\",\n  \"dosagePerServing\": 500,\n  \"dosageUnit\": \"MG\",\n  \"servingSize\": 1,\n  \"totalUnits\": 100,\n  \"notes\": \"Take one daily\"\n}",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"name\": \"Vitamin C\",\n  \"description\": \"Immune system support\",\n  \"brand\": \"HealthyLife\",\n  \"dosageType\": \"PILL\",\n  \"dosagePerServing\": 500,\n  \"dosageUnit\": \"MG\",\n  \"servingSize\": 1,\n  \"totalUnits\": 100,\n  \"remainingUnits\": 85,\n  \"notes\": \"Take one daily\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -219,7 +219,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"name\": \"Morning Energy Stack\",\n  \"description\": \"Focus and energy for the start of the day\",\n  \"defaultTime\": \"MORNING\",\n  \"color\": \"#FFD700\",\n  \"items\": []\n}",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"name\": \"Morning Energy Stack\",\n  \"description\": \"Focus and energy for the start of the day\",\n  \"defaultTime\": \"MORNING\",\n  \"color\": \"#FFD700\",\n  \"items\": [\n    { \"supplementId\": \"{{supplementId}}\" }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -260,7 +260,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"name\": \"Core Daily Stack\",\n  \"description\": \"Essential supplements - Updated\",\n  \"defaultTime\": \"ANYTIME\",\n  \"color\": \"#4682B4\",\n  \"items\": []\n}",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"name\": \"Core Daily Stack\",\n  \"description\": \"Essential supplements - Updated\",\n  \"defaultTime\": \"ANYTIME\",\n  \"color\": \"#4682B4\",\n  \"items\": [\n    { \"supplementId\": \"{{supplementId}}\", \"sortOrder\": 0 }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -305,7 +305,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"supplementId\": \"{{supplementId}}\",\n  \"sortOrder\": 1,\n  \"notes\": \"Strong morning dose\"\n}",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"supplementId\": \"{{supplementId}}\",\n  \"sortOrder\": 1\n}",
               "options": {
                 "raw": {
                   "language": "json"

@@ -61,6 +61,8 @@ public class Supplement {
 
     /**
      * Factory method for creating a new supplement.
+     *
+     * @param remainingUnits Optional - if null, defaults to totalUnits
      */
     public static Supplement of(
             UserId userId,
@@ -72,6 +74,7 @@ public class Supplement {
             DosageUnit dosageUnit,
             BigDecimal servingSize,
             BigDecimal totalUnits,
+            BigDecimal remainingUnits,
             String notes) {
 
         Objects.requireNonNull(userId, "UserId cannot be null");
@@ -83,6 +86,14 @@ public class Supplement {
         }
         if (totalUnits.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Total units must be positive");
+        }
+
+        BigDecimal effectiveRemainingUnits = remainingUnits != null ? remainingUnits : totalUnits;
+        if (effectiveRemainingUnits.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Remaining units cannot be negative");
+        }
+        if (effectiveRemainingUnits.compareTo(totalUnits) > 0) {
+            throw new IllegalArgumentException("Remaining units cannot be greater than total units");
         }
 
         Instant now = Instant.now();
@@ -97,7 +108,7 @@ public class Supplement {
                 .dosageUnit(dosageUnit)
                 .servingSize(servingSize != null ? servingSize : BigDecimal.ONE)
                 .totalUnits(totalUnits)
-                .remainingUnits(totalUnits) // Default remaining to total
+                .remainingUnits(effectiveRemainingUnits)
                 .notes(notes)
                 .active(true)
                 .createdAt(now)

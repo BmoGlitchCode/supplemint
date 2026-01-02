@@ -7,6 +7,7 @@ import com.BmoGlitchCode.supplemint.domain.model.supplement.DosageUnit;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 public record CreateSupplementRequest(
@@ -29,6 +30,8 @@ public record CreateSupplementRequest(
 
                 @NotNull(message = "Total units cannot be null")
                 @Positive(message = "Total units must be positive") BigDecimal totalUnits,
+
+                @PositiveOrZero(message = "Remaining units cannot be negative") BigDecimal remainingUnits,
 
                 @Size(max = 1000, message = "Notes must be at most 1000 characters") String notes) {
 }

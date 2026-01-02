@@ -5,9 +5,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 
 import java.util.UUID;
 
-public record AddStackItemRequest(
-        @NotNull(message = "User ID cannot be null") UUID userId,
-
+public record StackItemRequest(
         @NotNull(message = "Supplement ID cannot be null") UUID supplementId,
 
         @PositiveOrZero(message = "Sort order cannot be negative") Integer sortOrder) {
