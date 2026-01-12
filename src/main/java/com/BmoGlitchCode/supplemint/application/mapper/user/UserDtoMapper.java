@@ -41,7 +41,7 @@ public class UserDtoMapper {
      */
     public static UserResponse toUserResponse(User user) {
         return new UserResponse(
-                user.getId().toString(),
+                user.getId().getValue().toString(),
                 user.getEmail().getValue(),
                 user.getFirstName(),
                 user.getLastName(),
