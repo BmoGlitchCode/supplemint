@@ -175,6 +175,48 @@ public class Supplement {
     }
 
     /**
+     * Decrements the remaining units by the specified amount.
+     * Used when logging supplement intake.
+     *
+     * @param units the number of units taken
+     * @throws IllegalArgumentException if units is not positive or would result in negative remaining
+     */
+    public void decrementUnits(BigDecimal units) {
+        Objects.requireNonNull(units, "Units cannot be null");
+        if (units.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Units to decrement must be positive");
+        }
+        BigDecimal newRemaining = this.remainingUnits.subtract(units);
+        if (newRemaining.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Cannot decrement more units than remaining. Current: "
+                    + this.remainingUnits + ", Requested: " + units);
+        }
+        this.remainingUnits = newRemaining;
+        this.updatedAt = Instant.now();
+    }
+
+    /**
+     * Increments the remaining units by the specified amount.
+     * Used when un-logging (deleting) a supplement intake.
+     *
+     * @param units the number of units to restore
+     * @throws IllegalArgumentException if units is not positive or would exceed total units
+     */
+    public void incrementUnits(BigDecimal units) {
+        Objects.requireNonNull(units, "Units cannot be null");
+        if (units.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Units to increment must be positive");
+        }
+        BigDecimal newRemaining = this.remainingUnits.add(units);
+        if (newRemaining.compareTo(this.totalUnits) > 0) {
+            // Cap at total units - don't throw error, just cap it
+            newRemaining = this.totalUnits;
+        }
+        this.remainingUnits = newRemaining;
+        this.updatedAt = Instant.now();
+    }
+
+    /**
      * Deactivates the supplement (soft delete).
      */
     public void deactivate() {

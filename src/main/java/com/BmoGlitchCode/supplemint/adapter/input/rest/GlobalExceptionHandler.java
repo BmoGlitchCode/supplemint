@@ -4,6 +4,8 @@ import com.BmoGlitchCode.supplemint.application.usecase.stack.StackAccessDeniedE
 import com.BmoGlitchCode.supplemint.application.usecase.stack.StackNotFoundException;
 import com.BmoGlitchCode.supplemint.application.usecase.supplement.SupplementAccessDeniedException;
 import com.BmoGlitchCode.supplemint.application.usecase.supplement.SupplementNotFoundException;
+import com.BmoGlitchCode.supplemint.application.usecase.supplementlog.SupplementLogAccessDeniedException;
+import com.BmoGlitchCode.supplemint.application.usecase.supplementlog.SupplementLogNotFoundException;
 import com.BmoGlitchCode.supplemint.application.usecase.user.InvalidCredentialsException;
 import com.BmoGlitchCode.supplemint.application.usecase.user.UserAlreadyExistsException;
 import com.BmoGlitchCode.supplemint.application.usecase.user.UserNotActiveException;
@@ -71,6 +73,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(new ErrorResponse("STACK_ACCESS_DENIED", ex.getMessage()));
+    }
+
+    @ExceptionHandler(SupplementLogNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleSupplementLogNotFound(SupplementLogNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("SUPPLEMENT_LOG_NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(SupplementLogAccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleSupplementLogAccessDenied(SupplementLogAccessDeniedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse("SUPPLEMENT_LOG_ACCESS_DENIED", ex.getMessage()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

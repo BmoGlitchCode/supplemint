@@ -359,6 +359,349 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Supplement Logs",
+      "item": [
+        {
+          "name": "Create Supplement Log",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.id) {",
+                  "    pm.collectionVariables.set(\"supplementLogId\", jsonData.id);",
+                  "    console.log(\"Supplement Log ID set: \" + jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"supplementId\": \"{{supplementId}}\",\n  \"stackId\": null,\n  \"takenAt\": \"{{$isoTimestamp}}\",\n  \"unitsTaken\": 1,\n  \"skipped\": false,\n  \"notes\": \"Took with breakfast\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/supplement-logs?userId={{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["supplement-logs"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Skipped Log",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.id) {",
+                  "    pm.collectionVariables.set(\"supplementLogId\", jsonData.id);",
+                  "    console.log(\"Supplement Log ID set: \" + jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"supplementId\": \"{{supplementId}}\",\n  \"stackId\": null,\n  \"takenAt\": \"{{$isoTimestamp}}\",\n  \"unitsTaken\": 1,\n  \"skipped\": true,\n  \"notes\": \"Skipped - ran out of stock\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/supplement-logs?userId={{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["supplement-logs"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Log with Stack",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.id) {",
+                  "    pm.collectionVariables.set(\"supplementLogId\", jsonData.id);",
+                  "    console.log(\"Supplement Log ID set: \" + jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"supplementId\": \"{{supplementId}}\",\n  \"stackId\": \"{{stackId}}\",\n  \"takenAt\": \"{{$isoTimestamp}}\",\n  \"unitsTaken\": 1,\n  \"skipped\": false,\n  \"notes\": \"Taken as part of morning stack\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/supplement-logs?userId={{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["supplement-logs"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Supplement Log",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/supplement-logs/{{supplementLogId}}?userId={{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["supplement-logs", "{{supplementLogId}}"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List All Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/supplement-logs?userId={{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["supplement-logs"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Logs by Supplement",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/supplement-logs?userId={{userId}}&supplementId={{supplementId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["supplement-logs"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                },
+                {
+                  "key": "supplementId",
+                  "value": "{{supplementId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Logs by Stack",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/supplement-logs?userId={{userId}}&stackId={{stackId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["supplement-logs"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                },
+                {
+                  "key": "stackId",
+                  "value": "{{stackId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Skipped Logs Only",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/supplement-logs?userId={{userId}}&skippedOnly=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["supplement-logs"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                },
+                {
+                  "key": "skippedOnly",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Logs with Date Range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/supplement-logs?userId={{userId}}&startDate=2024-01-01T00:00:00Z&endDate=2026-12-31T23:59:59Z",
+              "host": ["{{baseUrl}}"],
+              "path": ["supplement-logs"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                },
+                {
+                  "key": "startDate",
+                  "value": "2024-01-01T00:00:00Z"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2026-12-31T23:59:59Z"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Supplement Log",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"skipped\": false,\n  \"notes\": \"Updated notes - felt great after taking this\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/supplement-logs/{{supplementLogId}}?userId={{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["supplement-logs", "{{supplementLogId}}"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Log as Skipped",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"skipped\": true,\n  \"notes\": \"Actually didn't take this one\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/supplement-logs/{{supplementLogId}}?userId={{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["supplement-logs", "{{supplementLogId}}"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Supplement Log",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/supplement-logs/{{supplementLogId}}?userId={{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["supplement-logs", "{{supplementLogId}}"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "variable": [
@@ -379,6 +722,11 @@
     },
     {
       "key": "stackId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "supplementLogId",
       "value": "",
       "type": "string"
     }
