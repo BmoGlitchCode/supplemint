@@ -76,7 +76,7 @@ See [HEXAGONAL_ARCHITECTURE.md](HEXAGONAL_ARCHITECTURE.md) for detailed architec
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/supplemint.git
+git clone https://github.com/BmoGlitchCode/supplemint.git
 cd supplemint
 ```
 
