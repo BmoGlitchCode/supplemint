@@ -33,7 +33,9 @@ public class SupplementLogUseCaseConfig {
     }
 
     @Bean
-    public DeleteSupplementLogUseCase deleteSupplementLogUseCase(SupplementLogRepository repository) {
-        return new DeleteSupplementLogUseCaseImpl(repository);
+    public DeleteSupplementLogUseCase deleteSupplementLogUseCase(
+            SupplementLogRepository supplementLogRepository,
+            SupplementRepository supplementRepository) {
+        return new DeleteSupplementLogUseCaseImpl(supplementLogRepository, supplementRepository);
     }
 }

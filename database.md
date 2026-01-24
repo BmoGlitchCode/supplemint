@@ -1,171 +1,258 @@
-// Personal Supplement Tracking App Database Schema
-// Complete schema with simplified inventory tracking and flexible dosing
+# Database Schema
 
-// ==================== USERS ====================
-Table users {
-id integer [primary key]
-username varchar [unique, not null]
-email varchar [unique, not null]
-created_at timestamp [default: `now()`]
-updated_at timestamp [default: `now()`]
-}
+This document describes the database schema for Supplemint, a personal supplement tracking application.
 
-// ==================== SUPPLEMENTS ====================
-Table supplements {
-id integer [primary key]
-user_id integer [not null]
-name varchar [not null]
-description text
-brand varchar [null]
-default_dosage_amount decimal [null]
-default_dosage_unit units [null]
-notes text [null]
+## Entity Relationship Diagram
 
-// Simplified Inventory Tracking
-total_units decimal [not null] // total pills/scoops when bought
-remaining_units decimal [not null] // currently remaining
+```
+┌─────────────┐       ┌─────────────────┐       ┌─────────────┐
+│   users     │       │   supplements   │       │   stacks    │
+├─────────────┤       ├─────────────────┤       ├─────────────┤
+│ id (PK)     │◄──┬───│ user_id (FK)    │   ┌───│ user_id (FK)│───►│
+│ username    │   │   │ id (PK)         │   │   │ id (PK)     │    │
+│ email       │   │   │ name            │   │   │ name        │    │
+│ ...         │   │   │ ...             │   │   │ ...         │    │
+└─────────────┘   │   └────────┬────────┘   │   └──────┬──────┘    │
+                  │            │            │          │           │
+                  │            │            │          │           │
+                  │            ▼            │          ▼           │
+                  │   ┌─────────────────────┴──────────────────┐   │
+                  │   │         stack_supplements              │   │
+                  │   ├────────────────────────────────────────┤   │
+                  │   │ id (PK)                                │   │
+                  │   │ stack_id (FK) ─────────────────────────┘   │
+                  │   │ supplement_id (FK)                         │
+                  │   │ sort_order                                 │
+                  │   └────────────────────────────────────────────┘
+                  │
+                  │   ┌────────────────────┐
+                  │   │  supplement_logs   │
+                  │   ├────────────────────┤
+                  ├───│ user_id (FK)       │
+                  │   │ supplement_id (FK) │───► supplements
+                  │   │ stack_id (FK)      │───► stacks (nullable)
+                  │   │ taken_at           │
+                  │   │ units_taken        │
+                  │   │ skipped            │
+                  │   └────────────────────┘
+                  │
+                  │   ┌────────────────────┐
+                  │   │     schedules      │  (Future)
+                  │   ├────────────────────┤
+                  └───│ user_id (FK)       │
+                      │ supplement_id (FK) │───► supplements (nullable)
+                      │ stack_id (FK)      │───► stacks (nullable)
+                      │ scheduled_time     │
+                      │ days_of_week       │
+                      └────────────────────┘
+```
 
-is_active boolean [default: true]
-created_at timestamp [default: `now()`]
-updated_at timestamp [default: `now()`]
+---
 
-indexes {
-user_id
-(user_id, name)
-}
-}
+## Tables
 
-// ==================== STACKS ====================
-Table stacks {
-id integer [primary key]
-user_id integer [not null]
-name varchar [not null]
-description text [null]
-default_time time_of_day [null]
-color varchar [null] // for UI display
-is_active boolean [default: true]
-created_at timestamp [default: `now()`]
-updated_at timestamp [default: `now()`]
+### users
 
-indexes {
-user_id
-(user_id, is_active)
-}
-}
+Stores user account information.
 
-// ==================== STACK SUPPLEMENTS (Junction Table) ====================
-Table stack_supplements {
-id integer [primary key]
-stack_id integer [not null]
-supplement_id integer [not null]
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | INTEGER | PRIMARY KEY | Unique identifier |
+| `username` | VARCHAR | UNIQUE, NOT NULL | Display name |
+| `email` | VARCHAR | UNIQUE, NOT NULL | Login email |
+| `created_at` | TIMESTAMP | DEFAULT now() | Account creation time |
+| `updated_at` | TIMESTAMP | DEFAULT now() | Last update time |
 
-sort_order integer [default: 0] // for display ordering
-notes text [null]
-created_at timestamp [default: `now()`]
+---
 
-indexes {
-(stack_id, supplement_id) [unique]
-supplement_id
-}
-}
+### supplements
 
-// ==================== TRACKING LOGS ====================
-Table supplement_logs {
-id integer [primary key]
-user_id integer [not null]
-supplement_id integer [not null]
-stack_id integer [null] // null if taken individually, otherwise part of stack
-taken_at timestamp [not null]
+Individual supplement products owned by a user.
 
-// What they actually took
-units_taken decimal [not null] // e.g., 2 capsules, 1.5 scoops
-dosage_amount decimal [not null] // e.g., 5000
-dosage_unit units [not null] // e.g., IU, mg
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | INTEGER | PRIMARY KEY | Unique identifier |
+| `user_id` | INTEGER | NOT NULL, FK → users | Owner reference |
+| `name` | VARCHAR | NOT NULL | Supplement name |
+| `description` | TEXT | NULL | Optional description |
+| `brand` | VARCHAR | NULL | Manufacturer/brand |
+| `default_dosage_amount` | DECIMAL | NULL | Default dose amount |
+| `default_dosage_unit` | ENUM | NULL | Unit of measurement |
+| `notes` | TEXT | NULL | User notes |
+| `total_units` | DECIMAL | NOT NULL | Total units when purchased |
+| `remaining_units` | DECIMAL | NOT NULL | Current inventory count |
+| `is_active` | BOOLEAN | DEFAULT true | Soft delete flag |
+| `created_at` | TIMESTAMP | DEFAULT now() | Creation time |
+| `updated_at` | TIMESTAMP | DEFAULT now() | Last update time |
 
-skipped boolean [default: false] // true if they skipped this dose
-notes text [null] // side effects, how they felt, etc.
-created_at timestamp [default: `now()`]
+**Indexes:**
+- `user_id`
+- `(user_id, name)`
 
-indexes {
-(user_id, taken_at)
-supplement_id
-stack_id
-(user_id, supplement_id, taken_at)
-}
-}
+---
 
-// ==================== SCHEDULES/REMINDERS ====================
-Table schedules {
-id integer [primary key]
-user_id integer [not null]
-stack_id integer [null] // schedule for entire stack
-supplement_id integer [null] // or individual supplement
+### stacks
 
-scheduled_time time [not null] // specific time like 08:00:00
-time_of_day time_of_day [not null] // morning, afternoon, evening
+Named groups of supplements taken together (e.g., "Morning Routine").
 
-// Days of week (bitmask: 1=Mon, 2=Tue, 4=Wed, 8=Thu, 16=Fri, 32=Sat, 64=Sun)
-// Example: 31 = Mon-Fri (1+2+4+8+16), 127 = Every day
-days_of_week integer [not null, default: 127]
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | INTEGER | PRIMARY KEY | Unique identifier |
+| `user_id` | INTEGER | NOT NULL, FK → users | Owner reference |
+| `name` | VARCHAR | NOT NULL | Stack name |
+| `description` | TEXT | NULL | Optional description |
+| `default_time` | ENUM | NULL | Suggested time of day |
+| `color` | VARCHAR | NULL | UI display color (hex) |
+| `is_active` | BOOLEAN | DEFAULT true | Soft delete flag |
+| `created_at` | TIMESTAMP | DEFAULT now() | Creation time |
+| `updated_at` | TIMESTAMP | DEFAULT now() | Last update time |
 
-reminder_enabled boolean [default: true]
-is_active boolean [default: true]
-created_at timestamp [default: `now()`]
-updated_at timestamp [default: `now()`]
+**Indexes:**
+- `user_id`
+- `(user_id, is_active)`
 
-indexes {
-user_id
-(user_id, is_active)
-}
+---
 
-Note: 'Either stack_id or supplement_id must be set, not both'
-}
+### stack_supplements
 
-// ==================== ENUMS ====================
-Enum units {
-mg // milligrams
-g // grams
-mcg // micrograms
-IU // International Units
-ml // milliliters
-}
+Junction table linking supplements to stacks (many-to-many).
 
-Enum unit_types {
-capsule
-tablet
-softgel
-gummy
-pill
-scoop
-drop
-spray
-ml
-packet
-sachet
-}
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | INTEGER | PRIMARY KEY | Unique identifier |
+| `stack_id` | INTEGER | NOT NULL, FK → stacks | Stack reference |
+| `supplement_id` | INTEGER | NOT NULL, FK → supplements | Supplement reference |
+| `sort_order` | INTEGER | DEFAULT 0 | Display order within stack |
+| `notes` | TEXT | NULL | Stack-specific notes |
+| `created_at` | TIMESTAMP | DEFAULT now() | Creation time |
 
-Enum time_of_day {
-morning
-afternoon
-evening
-night
-anytime
-}
+**Indexes:**
+- `(stack_id, supplement_id)` UNIQUE
+- `supplement_id`
 
-// ==================== RELATIONSHIPS ====================
+---
 
-// Users relationships
-Ref: supplements.user_id > users.id [delete: cascade]
-Ref: stacks.user_id > users.id [delete: cascade]
-Ref: supplement_logs.user_id > users.id [delete: cascade]
-Ref: schedules.user_id > users.id [delete: cascade]
+### supplement_logs
 
-// Supplements relationships
-Ref: stack_supplements.supplement_id > supplements.id [delete: cascade]
-Ref: supplement_logs.supplement_id > supplements.id [delete: restrict]
-Ref: schedules.supplement_id > supplements.id [delete: cascade]
+Records of supplement intake or skipped doses.
 
-// Stacks relationships
-Ref: stack_supplements.stack_id > stacks.id [delete: cascade]
-Ref: supplement_logs.stack_id > stacks.id [delete: set null]
-Ref: schedules.stack_id > stacks.id [delete: cascade]
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | INTEGER | PRIMARY KEY | Unique identifier |
+| `user_id` | INTEGER | NOT NULL, FK → users | User reference |
+| `supplement_id` | INTEGER | NOT NULL, FK → supplements | Supplement taken |
+| `stack_id` | INTEGER | NULL, FK → stacks | Associated stack (if any) |
+| `taken_at` | TIMESTAMP | NOT NULL | When taken/scheduled |
+| `units_taken` | DECIMAL | NOT NULL | Number of units (pills, scoops) |
+| `dosage_amount` | DECIMAL | NOT NULL | Actual dosage amount |
+| `dosage_unit` | ENUM | NOT NULL | Unit of measurement |
+| `skipped` | BOOLEAN | DEFAULT false | True if dose was skipped |
+| `notes` | TEXT | NULL | Side effects, feelings, etc. |
+| `created_at` | TIMESTAMP | DEFAULT now() | Record creation time |
+
+**Indexes:**
+- `(user_id, taken_at)`
+- `supplement_id`
+- `stack_id`
+- `(user_id, supplement_id, taken_at)`
+
+---
+
+### schedules (Future)
+
+Scheduled reminders for supplements or stacks.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | INTEGER | PRIMARY KEY | Unique identifier |
+| `user_id` | INTEGER | NOT NULL, FK → users | User reference |
+| `stack_id` | INTEGER | NULL, FK → stacks | Schedule for stack |
+| `supplement_id` | INTEGER | NULL, FK → supplements | Schedule for supplement |
+| `scheduled_time` | TIME | NOT NULL | Time of day (e.g., 08:00:00) |
+| `time_of_day` | ENUM | NOT NULL | General time period |
+| `days_of_week` | INTEGER | NOT NULL, DEFAULT 127 | Bitmask for days |
+| `reminder_enabled` | BOOLEAN | DEFAULT true | Send notifications |
+| `is_active` | BOOLEAN | DEFAULT true | Soft delete flag |
+| `created_at` | TIMESTAMP | DEFAULT now() | Creation time |
+| `updated_at` | TIMESTAMP | DEFAULT now() | Last update time |
+
+> **Note:** Either `stack_id` or `supplement_id` must be set, not both.
+
+**Days of Week Bitmask:**
+| Day | Value | Example |
+|-----|-------|---------|
+| Monday | 1 | |
+| Tuesday | 2 | |
+| Wednesday | 4 | |
+| Thursday | 8 | |
+| Friday | 16 | |
+| Saturday | 32 | |
+| Sunday | 64 | |
+| Mon-Fri | 31 | 1+2+4+8+16 |
+| Every day | 127 | All bits set |
+
+**Indexes:**
+- `user_id`
+- `(user_id, is_active)`
+
+---
+
+## Enums
+
+### units (Dosage Units)
+
+| Value | Description |
+|-------|-------------|
+| `mg` | Milligrams |
+| `g` | Grams |
+| `mcg` | Micrograms |
+| `IU` | International Units |
+| `ml` | Milliliters |
+
+### unit_types (Supplement Forms)
+
+| Value | Description |
+|-------|-------------|
+| `capsule` | Hard-shell capsule |
+| `tablet` | Compressed tablet |
+| `softgel` | Soft gelatin capsule |
+| `gummy` | Chewable gummy |
+| `pill` | Generic pill |
+| `scoop` | Powder scoop |
+| `drop` | Liquid drop |
+| `spray` | Oral spray |
+| `ml` | Milliliter serving |
+| `packet` | Single-serve packet |
+| `sachet` | Powder sachet |
+
+### time_of_day
+
+| Value | Description |
+|-------|-------------|
+| `morning` | Morning (6am - 12pm) |
+| `afternoon` | Afternoon (12pm - 5pm) |
+| `evening` | Evening (5pm - 9pm) |
+| `night` | Night (9pm - 6am) |
+| `anytime` | No specific time |
+
+---
+
+## Relationships & Cascade Rules
+
+| Parent | Child | On Delete |
+|--------|-------|-----------|
+| users | supplements | CASCADE |
+| users | stacks | CASCADE |
+| users | supplement_logs | CASCADE |
+| users | schedules | CASCADE |
+| supplements | stack_supplements | CASCADE |
+| supplements | supplement_logs | RESTRICT |
+| supplements | schedules | CASCADE |
+| stacks | stack_supplements | CASCADE |
+| stacks | supplement_logs | SET NULL |
+| stacks | schedules | CASCADE |
+
+**Key Behaviors:**
+- Deleting a user removes all their data
+- Deleting a supplement is blocked if logs exist (preserves history)
+- Deleting a stack removes it from logs but keeps the log records

@@ -14,6 +14,7 @@ This document maps out user stories based on the existing API endpoints and doma
 | **Supplement** | A single supplement product with dosage and inventory info |
 | **Stack** | A named group of supplements taken together |
 | **StackItem** | A supplement within a stack with sort order |
+| **SupplementLog** | A record of taking or skipping a supplement dose |
 
 ### Key Value Objects
 
@@ -351,19 +352,160 @@ This document maps out user stories based on the existing API endpoints and doma
 
 ---
 
+### 4. Supplement Logging
+
+#### US-4.1: Log Supplement Intake
+**As a** user
+**I want to** log when I take a supplement
+**So that** I can track my supplement history
+
+**Endpoint:** `POST /api/v1/supplement-logs?userId={uuid}`
+
+**Request:**
+```json
+{
+  "supplementId": "uuid",
+  "stackId": null,
+  "takenAt": "2026-01-24T08:00:00Z",
+  "unitsTaken": 1,
+  "skipped": false,
+  "notes": "Took with breakfast"
+}
+```
+
+**Acceptance Criteria:**
+- supplementId is required
+- stackId is optional (for logging as part of a stack)
+- takenAt is required (ISO 8601 timestamp)
+- unitsTaken must be positive
+- skipped defaults to false
+- notes max 1000 chars
+- When not skipped, decrements supplement's remaining units
+- When skipped, does NOT decrement inventory
+
+---
+
+#### US-4.2: Log Skipped Dose
+**As a** user
+**I want to** record when I skip a supplement dose
+**So that** I can track my adherence and patterns
+
+**Endpoint:** `POST /api/v1/supplement-logs?userId={uuid}`
+
+**Request:**
+```json
+{
+  "supplementId": "uuid",
+  "stackId": null,
+  "takenAt": "2026-01-24T08:00:00Z",
+  "unitsTaken": 1,
+  "skipped": true,
+  "notes": "Ran out of stock"
+}
+```
+
+**Acceptance Criteria:**
+- Same validation as regular log
+- Inventory is NOT decremented for skipped doses
+- Notes can explain why dose was skipped
+
+---
+
+#### US-4.3: View Single Log Entry
+**As a** user
+**I want to** view details of a specific log entry
+**So that** I can see the full record
+
+**Endpoint:** `GET /api/v1/supplement-logs/{id}?userId={uuid}`
+
+**Acceptance Criteria:**
+- Returns 404 if log not found
+- Returns 403 if log belongs to another user
+- Returns full log details including notes
+
+---
+
+#### US-4.4: List Supplement Logs
+**As a** user
+**I want to** view my supplement intake history
+**So that** I can review my tracking
+
+**Endpoint:** `GET /api/v1/supplement-logs?userId={uuid}`
+
+**Query Parameters:**
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| userId | Yes | - | User's UUID |
+| supplementId | No | - | Filter by specific supplement |
+| stackId | No | - | Filter by stack association |
+| startDate | No | - | Filter from date (ISO 8601) |
+| endDate | No | - | Filter to date (ISO 8601) |
+| skippedOnly | No | - | If true, show only skipped logs |
+
+**Acceptance Criteria:**
+- Returns only logs belonging to the user
+- Results sorted by takenAt descending (most recent first)
+- All filters are optional and combinable
+
+---
+
+#### US-4.5: Update Log Entry
+**As a** user
+**I want to** update a log entry
+**So that** I can correct mistakes or add notes
+
+**Endpoint:** `PUT /api/v1/supplement-logs/{id}?userId={uuid}`
+
+**Request:**
+```json
+{
+  "skipped": false,
+  "notes": "Updated notes - felt great after taking this"
+}
+```
+
+**Acceptance Criteria:**
+- Can update skipped status
+- Can update notes
+- Both fields are optional (null = no change)
+- Returns 403 if not owner
+
+---
+
+#### US-4.6: Delete Log Entry
+**As a** user
+**I want to** delete an incorrect log entry
+**So that** my records are accurate
+
+**Endpoint:** `DELETE /api/v1/supplement-logs/{id}?userId={uuid}`
+
+**Acceptance Criteria:**
+- Returns 204 No Content on success
+- Returns 403 if not owner
+- Returns 404 if not found
+- If log was for a taken dose (not skipped), restores units to supplement inventory
+
+---
+
 ## Data Relationships
 
 ```
 User (1) ----< (N) Supplement
-  |
-  +----------< (N) Stack (1) ----< (N) StackItem >---- (1) Supplement
+  |                   |
+  |                   +----< (N) SupplementLog
+  |                              |
+  +----------< (N) Stack (1) ----+ (optional association)
+                 |
+                 +----< (N) StackItem >---- (1) Supplement
 ```
 
 - A **User** owns many **Supplements**
 - A **User** owns many **Stacks**
+- A **User** owns many **SupplementLogs**
 - A **Stack** contains many **StackItems**
 - Each **StackItem** references one **Supplement**
 - A **Supplement** can appear in multiple **Stacks** (via StackItems)
+- A **SupplementLog** references one **Supplement** and optionally one **Stack**
 
 ---
 
@@ -405,6 +547,16 @@ User (1) ----< (N) Supplement
 | supplementId | Required, must exist |
 | sortOrder | Optional, non-negative integer (auto-assigned if not provided) |
 
+### SupplementLog
+| Field | Constraints |
+|-------|-------------|
+| supplementId | Required, must exist |
+| stackId | Optional, links log to a stack |
+| takenAt | Required, ISO 8601 timestamp |
+| unitsTaken | Required, positive number |
+| skipped | Optional, defaults to false |
+| notes | Optional, max 1000 chars |
+
 ---
 
 ## Error Responses
@@ -412,12 +564,14 @@ User (1) ----< (N) Supplement
 | HTTP Status | Error Code | Description |
 |-------------|------------|-------------|
 | 400 | VALIDATION_ERROR | Request validation failed |
+| 401 | INVALID_CREDENTIALS | Login failed |
 | 403 | SUPPLEMENT_ACCESS_DENIED | User doesn't own the supplement |
 | 403 | STACK_ACCESS_DENIED | User doesn't own the stack |
+| 403 | SUPPLEMENT_LOG_ACCESS_DENIED | User doesn't own the supplement log |
 | 404 | SUPPLEMENT_NOT_FOUND | Supplement doesn't exist |
 | 404 | STACK_NOT_FOUND | Stack doesn't exist |
+| 404 | SUPPLEMENT_LOG_NOT_FOUND | Supplement log doesn't exist |
 | 409 | USER_ALREADY_EXISTS | Email already registered |
-| 401 | INVALID_CREDENTIALS | Login failed |
 
 ---
 
@@ -425,6 +579,5 @@ User (1) ----< (N) Supplement
 
 Based on the database schema (`database.md`), these features are planned:
 
-- **Supplement Logging**: Track daily supplement intake
 - **Schedules/Reminders**: Set up automated reminders for stacks
 - **Authentication**: Replace userId param with proper session-based auth

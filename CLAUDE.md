@@ -172,6 +172,7 @@ This pattern manually wires dependencies, keeping the domain and application lay
 - **User Management**: Registration and login with in-memory storage
 - **Supplement Management**: Full CRUD operations with inventory tracking
 - **Stack Management**: Create, update, delete stacks with supplement items
+- **Supplement Logging**: Track supplement intake with support for skipped doses, stack association, date filtering, and notes
 
 ### Data Storage
 Currently using **in-memory repositories** (InMemory*Repository classes). These are temporary implementations in `adapter/output/persistence/repository/{feature}/`.
@@ -222,5 +223,4 @@ src/test/java/com/BmoGlitchCode/supplemint/
 - Add database migration tooling (Flyway/Liquibase)
 - Implement authentication/authorization (currently userId passed as parameter)
 - Add logging capabilities
-- Implement supplement tracking logs
 - Add scheduling/reminder functionality
